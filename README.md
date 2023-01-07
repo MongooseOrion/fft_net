@@ -35,6 +35,7 @@ $$F_n \overset{def}{=} \frac{1}{T} \int_{-\frac{T}{2}}^{\frac{T}{2}}f_T(t) e^{-j
 $$cos(n\omega_0 t)=\frac{e^{jn\omega_0 t}+e^{-jn\omega_0 t}}{2},\\ sin(n\omega_0 t)=\frac{e^{jn\omega_0 t}-e^{-jn\omega_0 t}}{2j} \tag{1.6}$$
 
 代入式 $(1.1)$ ，得
+
 $$\begin{align}
   f_T(t) &= \frac{a_0}{2}+\sum_{n=1}^{\infty}a_n \frac{e^{jn\omega_0 t}+e^{-jn\omega_0 t}}{2}+\sum_{n=1}^{\infty}b_n\frac{e^{jn\omega_0 t}-e^{-jn\omega_0 t}}{2j} \\
   &= \frac{a_0}{2}+\sum_{n=1}^{\infty}\frac{a_n-jb_n}{2}e^{jn\omega_0 t}+\sum_{n=1}^{\infty}\frac{a_n+jb_n}{2}e^{-jn\omega_0 t} \\
@@ -42,9 +43,11 @@ $$\begin{align}
   &= F_0+\sum_{n=1}^{\infty}F_n e^{jn\omega_0 t}+\sum_{n=-\infty}^{-1}F_n e^{jn\omega_0 t} \\
   &= \sum_{n=-\infty}^{\infty}F_n e^{jn\omega_0 t}
 \end{align}$$
+
 即
 $$f_T(t)=\sum_{n=-\infty}^{\infty}F_n e^{jn\omega_0 t}$$
 其中
+
 $$\begin{cases}
   F_0=\frac{a_0}{2}=\frac{A_0}{2} \\
   F_n=\frac{a_n-jb_n}{2}=\frac{A_n}{2}e^{j\varphi_n} \\
