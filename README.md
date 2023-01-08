@@ -1,9 +1,9 @@
 # 快速傅里叶变换的逻辑实现
 傅里叶变换可以将时域信号转化为频域信号，从而能够得到信号的频谱结构和变化规律。傅里叶变换最基础的部分是离散傅里叶变换（Discrete Fourier Transform，DFT），是不可或缺的一部分。离散傅里叶变换是一种将傅里叶变换离散化的一种方法，即将时域中的连续信号采样后得到的信号转化为频域中的信号。由于离散傅里叶变换的运算量太大，因此直接使用 DFT 算法进行实时的信号处理就会花费不必要的消耗，快速傅里叶变换应运而生。
 
-快速傅里叶变换（Fast Fourier Transform，FFT）是离散傅里叶变换（Discrete Fourier Transform，DFT）的快速算法，快速傅里叶变换降 低了运算量，加快了 DFT 的运算速度的方法是将长序列的 DFT 分解成为短序列的 DFT，从而为数字信号处理技术实现多种信号实时处理提供了充足的条件，使得用户更加容易实现和应用数字信号处理，故 FFT 是数字信号处理领域广泛使用的最有效的算法之一。因其计算量小的优势，FFT被广泛的应用于语音识别、图像处理、无线通信、频谱分析、雷达处理及数字通信等领域中。
+快速傅里叶变换（Fast Fourier Transform，FFT）是离散傅里叶变换（Discrete Fourier Transform，DFT）的快速算法，快速傅里叶变换降低了运算量，加快了 DFT 的运算速度的方法是将长序列的 DFT 分解成为短序列的 DFT，从而为数字信号处理技术实现多种信号实时处理提供了充足的条件，使得用户更加容易实现和应用数字信号处理，故 FFT 是数字信号处理领域广泛使用的最有效的算法之一。因其计算量小的优势，FFT 被广泛的应用于语音识别、图像处理、无线通信、频谱分析、雷达处理及数字通信等领域中。
 
-FFT 的基本思想是将一个信号分解为若干个正弦波和余弦波的加权和，从而得到信号的频谱。通过这种方式，可以在信号中提取出特定频率分量，并且可以在频域中进行操作。
+FFT 的基本思想是将一个信号分解为若干个正弦波和余弦波的加权和，从而得到信号的频谱。通过这种方式，可以在信号中提取出特定频率分量，并且可以在频域中进行操作。下面将介绍傅里叶级数以及傅里叶变换。
 
 ## 连续周期信号的傅里叶级数
 ### 正弦余弦型傅里叶级数（三角型傅里叶级数）
@@ -36,13 +36,13 @@ $$cos(n\omega_0 t)=\frac{e^{jn\omega_0 t}+e^{-jn\omega_0 t}}{2},\\ sin(n\omega_0
 
 代入式 $(1.1)$ ，得
 
-$$\begin{align}
+$$\begin{align*}
   f_T(t) &= \frac{a_0}{2}+\sum_{n=1}^{\infty}a_n \frac{e^{jn\omega_0 t}+e^{-jn\omega_0 t}}{2}+\sum_{n=1}^{\infty}b_n\frac{e^{jn\omega_0 t}-e^{-jn\omega_0 t}}{2j} \\
   &= \frac{a_0}{2}+\sum_{n=1}^{\infty}\frac{a_n-jb_n}{2}e^{jn\omega_0 t}+\sum_{n=1}^{\infty}\frac{a_n+jb_n}{2}e^{-jn\omega_0 t} \\
   &= \frac{a_0}{2}+\sum_{n=1}^{\infty}F_n e^{jn\omega_0 t}+\sum_{n=1}^{\infty}F_{-n} e^{-jn\omega_0 t} \\
   &= F_0+\sum_{n=1}^{\infty}F_n e^{jn\omega_0 t}+\sum_{n=-\infty}^{-1}F_n e^{jn\omega_0 t} \\
   &= \sum_{n=-\infty}^{\infty}F_n e^{jn\omega_0 t}
-\end{align}$$
+\end{align*}$$
 
 即
 $$f_T(t)=\sum_{n=-\infty}^{\infty}F_n e^{jn\omega_0 t}$$
@@ -68,4 +68,90 @@ $$\begin{cases}
 
 定义
 $$F(j\omega) \overset{def}{=} \lim_{\Delta \to 0}\frac{F_n}{\Delta F}=\lim_{T \to \infty}TF_n \tag{2.1}$$
-为频谱密度函数。 $F(j\omega)=\$ 表示了单位频带 $\Delta F$ 上的复振幅 $F_n$ 分布状况。 $F(j\omega)$ 可理解为一种频谱密度，它表达了非周期信号在任意频率 $\omega$ 处的频谱密度函数。
+为频谱密度函数。 $F(j\omega)$ 表示了单位频带 $\Delta F$ 上的复振幅 $F_n$ 分布状况。 $F(j\omega)$ 可理解为一种频谱密度，它表达了非周期信号在任意频率 $\omega$ 处的频谱密度函数。
+
+根据周期信号傅里叶级数定义式，有
+$$TF_n=\int_{-\frac{T}{2}}^{\frac{T}{2}}f_T(t)e^{-jn\omega_0 t}\\ dt \tag{2.2}$$
+$$f_T(t)=\sum_{n=-\infty}^{\infty}F_n e^{jn\omega_0 t} \tag{2.3}$$
+考虑到当周期 $T$ 趋近于无穷大时，上式中各变量将作如下变化： $\omega_0=\frac{2\pi}{T}$ 趋于无穷小， $\omega_0 \to \Delta \omega \to d\omega$ ，取其为 $d\omega$ ；离散变量 $n\omega_0$ 则变为连续变量 $\omega$ ； $F_n$ 变为 $\frac{d\omega}{2\pi}F(j\omega)$ ；离散和变为连续和。于是式 $(2.2)$ 变为
+$$F(j\omega)=\lim_{T \to \infty}TF_n=\lim_{T \to \infty}\frac{T}{T}\int_{-\frac{T}{2}}^{\frac{T}{2}}f_T(t)e^{-jn\omega_0 t}\\ dt=\int_{-\infty}^{\infty}f(t)e^{-j\omega t}\\ dt \tag{2.4}$$
+式 $(2.3)$ 变为
+
+$$\begin{align*}
+f(t) &= \lim_{T \to \infty}f_T(t)=\lim_{T \to \infty}\sum_{n=-\infty}^{\infty}F_n e^{jn\omega_0 t}\\
+&= \lim_{T \to \infty}\sum_{n=-\infty}^{\infty}\frac{1}{2\pi}F(j\omega)e^{jn\omega_0 t}\Delta \omega=\frac{1}{2\pi}\int_{-\infty}^{\infty}F(j\omega)e^{j\omega t}\\ d\omega
+\end{align*}$$
+
+即
+$$F(j\omega) \overset{def}{=} \int_{-\infty}^{\infty}f(t)e^{-j\omega t}\\ dt \tag{2.5}$$
+$$f(t) \overset{def}{=}\frac{1}{2\pi}\int_{-\infty}^{\infty}F(j\omega)e^{j\omega t}\\ d\omega \tag{2.6}$$
+
+式 $(2.5)$ 和 $(2.6)$ 称为傅里叶变换对，其中式 $(2.5)$ 称为傅里叶正变换（FT），简称傅里叶变换；而式 $(2.6)$ 称为傅里叶反变换（IFT）。 $F(j\omega)$ 是 $f(t)$ 的**频谱密度函数**即频谱函数，而 $f(t)$ 是 $F(j\omega)$ 的**原函数**。
+
+## 离散傅里叶变换
+设 $f(k)$ 是一个有限长序列，其长度为 $N$ ，即在区间 $0 \le k \le N-1$ 以外， $f(k)$ 为 0 。将 $f(k)$ 以周期 $N$ 延拓而成的周期序列记为 $f_N(k)$ ，则有
+$$f_N(k)=\sum_{m=-\infty}^{\infty}f_1(k-mN),\\ m 为整数 \tag{3.1}$$
+其中
+$$f_1(k)=f(k)g_N(k) \tag{3.2}$$
+
+周期序列 $f_N(k)$ 的离散时间傅里叶级数表达式为
+$$F_n=\frac{1}{N}\sum_{k=(N)}f_N(k)e^{-jn\Omega_0k} \tag{3.3}$$
+$$f_N(k)=\sum_{n=(N)}F_ne^{jn\Omega_0k} \tag{3.4}$$
+
+如果将 $NF_n$ 表示成 $F(n)$ ，且在 $[0,N-1]$ 内 $f(k)=f_N(k)$ 并令 $W=e^{-j\Omega_0}=e^{-j\frac{2\pi}{N}}$ ，则上式可改写为
+$$F(n) \overset{def}{=}\sum_{k=0}^{N-1}f(k)W^{nk} \tag{3.5}$$
+$$f(k) \overset{def}{=}\frac{1}{N}\sum_{n=0}^{N-1}F(n)W^{-nk} \tag{3.6}$$
+
+式 $(3.5)$ 和 $(3.6)$ 所定义的变换关系称为离散傅里叶变换（DFT）。
+
+DFT 表明，时域 $N$ 点有限长序列 $f(k)$ 可以变换为频域的 $N$ 点有限长序列 $F(n)$ 。
+
+式 $(3.5)$ 和 $(3.6)$ 写为矩阵形式，有
+
+$$\begin{bmatrix}
+F(0)\\
+F(1)\\
+\vdots \\
+F(N-1)
+\end{bmatrix}
+=
+\begin{bmatrix}
+W^0 & W^0 & W^0 & \cdots & W^0 \\
+W^0 & W^{1\times 1} & W^{2\times 1} & \cdots & W^{(N-1)\times 1} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+W^0 & W^{1\times (N-1)} & W^{2\times (N-1)} & \cdots & W^{(N-1)\times (N-1)}
+\end{bmatrix}
+\begin{bmatrix}
+f(0) \\
+f(1) \\
+\vdots \\
+f(N-1)
+\end{bmatrix} \tag{3.7}$$
+
+$$\begin{bmatrix}
+f(0)\\
+f(1)\\
+\vdots \\
+f(N-1)
+\end{bmatrix}
+=\frac{1}{N}
+\begin{bmatrix}
+W^0 & W^0 & W^0 & \cdots & W^0 \\
+W^0 & W^{-1\times 1} & W^{-2\times 1} & \cdots & W^{-(N-1)\times 1} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+W^0 & W^{-1\times (N-1)} & W^{-2\times (N-1)} & \cdots & W^{-(N-1)\times (N-1)}
+\end{bmatrix}
+\begin{bmatrix}
+F(0) \\
+F(1) \\
+\vdots \\
+F(N-1)
+\end{bmatrix} \tag{3.8}$$
+
+简记为
+$$\mathbf{F}(n)=\mathbf{W}^{kn}\mathbf{f}(k) \tag{3.9}$$
+$$\mathbf{f}(k)=\frac{1}{N}\mathbf{W}^{-kn}\mathbf{F}(n) \tag{3.10}$$
+
+其中， $\mathbf{W}^{kn}$ 和 $\mathbf{W}^{-kn}$ 都是 $N\times N$ 对称矩阵。
+
+## 快速傅里叶变换
