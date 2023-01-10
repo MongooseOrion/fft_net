@@ -114,8 +114,7 @@ F(1)\\
 \vdots \\
 F(N-1)
 \end{bmatrix}
-=
-\begin{bmatrix}
+=\begin{bmatrix}
 W^0 & W^0 & W^0 & \cdots & W^0 \\
 W^0 & W^{1\times 1} & W^{2\times 1} & \cdots & W^{(N-1)\times 1} \\
 \vdots & \vdots & \vdots & \ddots & \vdots \\
