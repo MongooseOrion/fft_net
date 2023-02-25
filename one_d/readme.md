@@ -1,62 +1,64 @@
 # 使用 Verilog 编写一维快速傅里叶变换
 
-首先，让我简要介绍什么是 FFT（快速傅里叶变换）。FFT 是一种高效的算法，用于计算信号或图像的傅里叶变换。傅里叶变换是一种数学工具，可以将时域信号转换为频域信号，其中时域信号是指在时间轴上的信号，而频域信号是指在频率轴上的信号。FFT 可以用于许多应用，包括音频信号处理、图像处理、通信系统等。
+## 基于矩阵运算的 FFT 算法
 
-现在，让我们来讨论如何使用 Verilog 语言编写一维FFT算法。
+基于矩阵运算的FFT算法主要有以下几个步骤：
 
-首先，你需要了解 Verilog 语言的基础知识，包括模块、端口、信号、连接等。如果你不熟悉 Verilog 语言，建议先学习一些 Verilog 的基础知识。
+  1. 对输入序列进行递归分解，直到分解到长度为1的子序列；
+  2. 计算旋转因子 $w_n = e^{-2\pi i/n}$；
+  3. 计算长度为 $n/2$ 的偶数部分和奇数部分，分别进行 FFT 计算；
+  4. 将偶数部分和奇数部分的FFT结果组合起来，得到 FFT 的结果。
 
-接下来，你需要了解 FFT 算法的基本原理。FFT 是通过将时域信号分成若干个点的序列来进行计算的。这些点的序列称为输入序列。FFT 算法的目的是将输入序列转换为频域序列，其中频域序列表示信号在频率轴上的分布。
+基于矩阵运算的FFT算法相对于蝶形运算算法更易于理解，但是它的运算量和空间复杂度较高，因此不如蝶形运算算法快速和高效。
 
-FFT 算法的基本流程：
-
-  1. 对输入序列进行线性变换，以便消除相邻点之间的相位差。
-  2. 将输入序列分成两个子序列，分别计算这两个子序列的DFT（离散傅里叶变换）。
-  3. 将两个子序列的DFT合并成一个序列，其中每个点的值为两个子序列中对应点的值的和。
-  4. 重复步骤2和3，直到输入序列被分解成单独的点为止。
-
-以上是FFT算法的基本流程。
-
-现在，让我们来看看如何使用 Verilog 语言编写一维 FFT 算法。
-
-首先，你需要定义一个模块，用于表示 FFT 算法。模块包含输入和输出端口，用于连接信号。
-
-例如，下面是一个简单的FFT模块的定义：
+下述为一段使用矩阵运算 FFT 的伪代码：
 ```
-module FFT (
-input clk,
-input reset,
-input signed [7:0] data_in,
-output signed [7:0] data_out
-);
-```
+function FFT(x)
+    n = length(x)
+    if n == 1 then
+        return x
+    end if
 
-接下来，你需要在模块内部定义输入序列和频域序列。你可以使用 Verilog 的数组类型来定义这两个序列。
-
-例如：
-```
-reg signed [7:0] input_sequence [0:7];
-reg signed [7:0] frequency_sequence [0:7];
+    w_n = exp(-2 * pi * i / n)
+    w = 1
+    x_even = FFT([x[0], x[2], ..., x[n-2]])
+    x_odd = FFT([x[1], x[3], ..., x[n-1]])
+    X = new array of size n
+    for k from 0 to n/2 - 1 do
+        X[k] = x_even[k] + w * x_odd[k]
+        X[k + n/2] = x_even[k] - w * x_odd[k]
+        w = w * w_n
+    end for
+    return X
+end function
 ```
 
-接下来，你需要实现 FFT 算法的流程。你可以使用 Verilog 的 for 循环来实现线性变换和子序列的 DFT 计算。
+对于矩阵运算的 FFT，我们可以将输入的序列看成一个列向量，将傅里叶变换看成是一个矩阵乘法操作。那么，对于一个长度为 $N$ 的序列，FFT 可以表示为如下形式：
 
-例如，下面是一个简单的FFT流程的实现：
-```
-for (int i = 0; i < 8; i++) {
-// 线性变换
-input_sequence[i] = data_in[i] - data_in[i+1];
+$$y = F_Nx$$
 
-// 计算子序列的 DFT
-frequency_sequence[i] = input_sequence[0] + input_sequence[1];
-}
-```
+其中 $x$ 是 $N\times1$ 的列向量，$y$ 也是 $N\times1$ 的列向量，而 $F_N$ 则是一个 $N\times N$ 的矩阵，它的第 $k$ 行第 $n$ 列的元素为：
 
-最后，你需要输出频域序列。你可以使用 Verilog 的赋值语句来实现。
+$$F_N[k,n]=e^{-j\frac{2\pi kn}{N}}$$
 
-例如：
-```
-data_out = frequency_sequence[0];
-```
+其中 $j$ 为虚数单位，$e$ 为自然对数的底数。上述公式是 DFT 的矩阵形式，而 FFT 可以看作是 DFT 的快速实现。
 
-以上就是使用 Verilog 编写一维 FFT 算法的简单流程。你还可以继续完善代码，比如添加控制逻辑、错误处理等。
+因此，对于一个长度为 $N$ 的序列 $x$，我们可以将其 FFT 的计算过程表示为如下形式：
+
+$$y_n=\sum_{k=0}^{N-1}F_N[n,k]x_k$$
+
+根据矩阵乘法的定义，我们可以进一步将 $y=F_Nx$ 表示为如下形式：
+
+$$\begin{align*}
+\vec{y}&= \begin{bmatrix} 
+\vec{y_0} \ \vec{y_1} \ \cdots \ \vec{y}_{N-1} 
+\end{bmatrix} \\
+&= \begin{bmatrix} 
+F_N[0,0] & F_N[0,1] & \cdots & F_N[0,N-1] \\
+F_N[1,0] & F_N[1,1] & \cdots & F_N[1,N-1] \\ \vdots & \vdots & \ddots & \vdots \\ F_N[N-1,0] & F_N[N-1,1] & \cdots & F_N[N-1,N-1] 
+\end{bmatrix} 
+\begin{bmatrix} 
+\vec{x_0} \ \vec{x_1} \ \cdots \ \vec{x}_{N-1} 
+\end{bmatrix} \\
+&= FX
+\end{align*}$$
