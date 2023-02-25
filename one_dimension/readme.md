@@ -37,7 +37,7 @@ end function
 
 $$y = F_Nx$$
 
-其中 $x$ 是 $N\times1$ 的列向量，$y$ 也是 $N\times1$ 的列向量，而 $F_N$ 则是一个 $N\times N$ 的矩阵，它的第 $k$ 行第 $n$ 列的元素为：
+其中 $x$ 是 $N\times1$ 的列向量， $y$ 也是 $N\times1$ 的列向量，而 $F_N$ 则是一个 $N\times N$ 的矩阵，它的第 $k$ 行第 $n$ 列的元素为：
 
 $$F_N[k,n]=e^{-j\frac{2\pi kn}{N}}$$
 
@@ -55,10 +55,13 @@ $$\begin{align*}
 \end{bmatrix} \\
 &= \begin{bmatrix} 
 F_N[0,0] & F_N[0,1] & \cdots & F_N[0,N-1] \\
-F_N[1,0] & F_N[1,1] & \cdots & F_N[1,N-1] \\ \vdots & \vdots & \ddots & \vdots \\ F_N[N-1,0] & F_N[N-1,1] & \cdots & F_N[N-1,N-1] 
+F_N[1,0] & F_N[1,1] & \cdots & F_N[1,N-1] \\ 
+\vdots & \vdots & \ddots & \vdots \\ 
+F_N[N-1,0] & F_N[N-1,1] & \cdots & F_N[N-1,N-1] 
 \end{bmatrix} 
 \begin{bmatrix} 
 \vec{x_0} \ \vec{x_1} \ \cdots \ \vec{x}_{N-1} 
 \end{bmatrix} \\
 &= FX
 \end{align*}$$
+
